@@ -3,38 +3,7 @@ from bs4 import BeautifulSoup
 import csv
 import time
 from random import randint
-file = open('books.csv', 'w', encoding='utf-8_sig', newline='\n')
-write_obj = csv.writer(file)
-write_obj.writerow(['Title', 'Author', 'Link'])
-ind = 1
 
-
-while ind < 2:
-    url = f'https://www.lit.ge/index.php?page=books&send[shop.catalog][page]=4'
-    response = requests.get(url)
-    print(response)
-    html = response.text
-    soup = BeautifulSoup(html, 'html.parser')
-    book_section = soup.find('section', class_='list-holder')
-    all_books = book_section.find_all('article')
-    for book in all_books:
-        img_address = book.img.attrs.get('src')
-        right = book.find('div', class_='span10')
-        title = right.a.text
-        author = right.b.a.text
-        write_obj.writerow([title, author, img_address])
-        print(title,author)
-    ind += 1
-    print(ind, response.url)
-    time.sleep(randint(1, 7))
-
-import requests
-from bs4 import BeautifulSoup
-import csv
-import time
-from random import randint
-
-# Open the CSV file for writing
 file = open('phones.csv', 'w', encoding='utf-8_sig', newline='\n')
 write_obj = csv.writer(file)
 write_obj.writerow(['Name', 'Price', 'Link'])
@@ -52,7 +21,7 @@ while ind < 2:
     product_section = soup.find('div', class_='products')
     all_products = product_section.find_all('div')
     for product in all_products:
-        below = product.find('div', href_)
+        below = product.find('div', class_='product')
 
 
         if product_section:
@@ -63,17 +32,13 @@ while ind < 2:
                 write_obj.writerow([name, price, link])
                 print(f'Scraped: {name} - {price} - {link}')
         else:
-            print(f'No product section found on page {page_index}')
+            print(f'No product section found on page {ind}')
     else:
-        print(f'Failed to fetch page {page_index}')
+        print(f'Failed to fetch page {ind}')
 
-    # Increment the page index
-    page_index += 1
-    print(f'Completed scraping page {page_index - 1}')
+    ind += 1
+    print(f'Completed scraping page {ind - 1}')
 
-    # Delay to avoid overloading the server
-    time.sleep(randint(15, 20))
+    time.sleep(randint(8, 15))
 
-# Close the CSV file
 file.close()
-print('Scraping complete. Data saved to phones.csv')
