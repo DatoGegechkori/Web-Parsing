@@ -4,41 +4,38 @@ import csv
 import time
 from random import randint
 
-file = open('phones.csv', 'w', encoding='utf-8_sig', newline='\n')
-write_obj = csv.writer(file)
-write_obj.writerow(['Name', 'Price', 'Link'])
+with open('TVs.csv', 'w', encoding='utf-8_sig', newline='\n') as file:
+    write_obj = csv.writer(file)
+    write_obj.writerow(['Title', 'Price', 'Link'])
 
-ind = 1
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+    ind = 1
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/39.0.2171.95 Safari/537.36'
+    }
 
-while ind < 2:
-    url = f'https://be.ge/ge/products/mobiluri-telefonebi-500?page={ind}&limit=24'
-    response = requests.get(url, headers=headers)
-    print(response)
-    html = response.text
-    soup = BeautifulSoup(html, 'html.parser')
-    product_section = soup.find('div', class_='products')
-    all_products = product_section.find_all('div')
-    for product in all_products:
-        below = product.find('div', class_='product')
+    while ind < 5:
+        url = f'https://isurve.ge/collections/televizorebi?page={ind}'
+        response = requests.get(url, headers=headers)
+        html = response.text
+        soup = BeautifulSoup(html, 'html.parser')
+        all_products = soup.find_all('div', class_='grid-view-item')
+
+        for product in all_products:
+            title = product.find('div', class_='h4 grid-view-item__title').text
+            price = product.find('span', class_='product-price__price').text
+            img_tag = product.find('img')
+
+            if img_tag:
+                link = img_tag.attrs.get('src', 'No image link')
+
+                write_obj.writerow([title, price, link])
+                print(title, price, link)
+
+        ind += 1
+        print(f"Page {ind}")
+        duration = randint(7, 15)
+        print(f'Sleeping for {duration} seconds')
+        time.sleep(duration)
 
 
-        if product_section:
-            for product in product_section:
-                name = product.find('div', class_='product-box--name').text.strip()
-                price = product.find('div', class_='product-box--price').text.strip()
-                link = product.find('a', class_='product-box--name-link')['href']
-                write_obj.writerow([name, price, link])
-                print(f'Scraped: {name} - {price} - {link}')
-        else:
-            print(f'No product section found on page {ind}')
-    else:
-        print(f'Failed to fetch page {ind}')
-
-    ind += 1
-    print(f'Completed scraping page {ind - 1}')
-
-    time.sleep(randint(8, 15))
-
-file.close()
